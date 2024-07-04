@@ -1,20 +1,29 @@
 import express, { json } from 'express';
-// import axios from 'axios';
+import axios from 'axios';
+import { API_URL, API_KEY } from './utils/constants.js';
 const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(json());
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.send('Api Working');
 });
 
 app.get('/files/data', async (req, res) => {
   try {
-    res.json({ message: 'Aquí irán los datos procesados.' });
+    const filesResponse = await axios.get(`${API_URL}/files`, {
+      headers: { Authorization: API_KEY },
+    });
+
+    const files = filesResponse.data.files;
+
+    res.json(files);
   } catch (error) {
-    console.error('Error al procesar los datos:', error.message);
-    res.status(500).json({ error: 'Error al procesar los datos' });
+    const statusCode = error.response ? error.response.status : 500;
+    return res.status(statusCode).json({
+      error: error.message ? error.message : 'Error processing request',
+    });
   }
 });
 
