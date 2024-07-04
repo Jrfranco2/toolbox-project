@@ -137,4 +137,18 @@ describe('API Tests', () => {
       throw new Error(err);
     }
   });
+
+  it('Should return 500 when something when wrong', async () => {
+    nock.cleanAll();
+
+    nock(EXTERNAL_API_BASE_URL).get('/v1/secret/files').reply(500);
+
+    try {
+      await axios.get(`${BASE_URL}/files/data`);
+      throw new Error('Expected request to fail');
+    } catch (err) {
+      expect(err.response.status).to.equal(500);
+      expect(err.response.data).to.have.property('error').that.is.a('string');
+    }
+  });
 });
