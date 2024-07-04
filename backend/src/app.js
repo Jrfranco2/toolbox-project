@@ -57,6 +57,21 @@ app.get('/files/data', async (_, res) => {
   }
 });
 
+app.get('/files/list', async (req, res) => {
+  try {
+    const filesResponse = await axios.get(`${API_URL}/files`, {
+      headers: { Authorization: API_KEY },
+    });
+
+    res.json(filesResponse.data);
+  } catch (error) {
+    const statusCode = error.response ? error.response.status : 500;
+    return res.status(statusCode).json({
+      error: error.message ? error.message : 'Error fetching file list',
+    });
+  }
+});
+
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
