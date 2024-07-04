@@ -11,18 +11,18 @@ const EXTERNAL_API_BASE_URL = 'https://echo-serv.tbxnet.com';
 let server;
 
 describe('API Tests', () => {
+  before((done) => {
+    server = app.listen(PORT, () => {
+      console.log(`Test server running on ${BASE_URL}`);
+      done();
+    });
+  });
+
+  after((done) => {
+    server.close(done);
+  });
+
   describe('/files/data', () => {
-    before((done) => {
-      server = app.listen(PORT, () => {
-        console.log(`Test server running on ${BASE_URL}`);
-        done();
-      });
-    });
-
-    after((done) => {
-      server.close(done);
-    });
-
     beforeEach(() => {
       nock(EXTERNAL_API_BASE_URL)
         .get('/v1/secret/files')
@@ -144,6 +144,85 @@ describe('API Tests', () => {
       } catch (err) {
         expect(err.response.status).to.equal(500);
         expect(err.response.data).to.have.property('error').that.is.a('string');
+      }
+    });
+  });
+
+  describe('/files/data with fileName query parameter', () => {
+    beforeEach(() => {
+      nock(EXTERNAL_API_BASE_URL)
+        .get('/v1/secret/files')
+        .reply(200, {
+          files: ['testQuery.csv'],
+        });
+      nock(EXTERNAL_API_BASE_URL)
+        .get('/v1/secret/file/testQuery.csv')
+        .reply(
+          200,
+          `file,text,number,hex
+            testQuery.csv,nTLDaj,33189o,ee40fbdd39c9314a107ba219e5617645
+          `
+        );
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    it("Should return a specific file's data with status 200", async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/files/data?fileName=testQuery.csv`
+        );
+        expect(res.status).to.equal(200);
+        expect(res.data).to.be.an('object');
+        expect(res.data).to.have.property('file', 'testQuery.csv');
+        expect(res.data).to.have.property('lines').that.is.an('array');
+      } catch (err) {
+        throw new Error(err);
+      }
+    });
+
+    it('Should return 404 when file is not found', async () => {
+      nock(EXTERNAL_API_BASE_URL)
+        .get('/v1/secret/file/nonexistent.csv')
+        .reply(404);
+
+      try {
+        await axios.get(`${BASE_URL}/files/data?fileName=nonexistent.csv`);
+        throw new Error('Expected request to fail');
+      } catch (err) {
+        if (err.response) {
+          expect(err.response.status).to.equal(404);
+          expect(err.response.data)
+            .to.have.property('message')
+            .that.is.a('string')
+            .and.equal('Filename: nonexistent.csv not found');
+        } else {
+          throw new Error(
+            'Expected an error response but got a different error'
+          );
+        }
+      }
+    });
+
+    it('Should return 500 when fetching the file data fails', async () => {
+      nock(EXTERNAL_API_BASE_URL).get('/v1/secret/file/test500.csv').reply(500);
+
+      try {
+        await axios.get(`${BASE_URL}/files/data?fileName=test500.csv`);
+        throw new Error('Expected request to fail');
+      } catch (err) {
+        if (err.response) {
+          expect(err.response.status).to.equal(500);
+          expect(err.response.data)
+            .to.have.property('error')
+            .that.is.a('string');
+        } else {
+          throw new Error(
+            'Expected an error response but got a different error'
+          );
+        }
       }
     });
   });
