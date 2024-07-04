@@ -9,6 +9,7 @@ export default [
         ...globals.node,
       },
       ecmaVersion: 2021,
+      env: { mocha: true },
     },
   },
   pluginJs.configs.recommended,
