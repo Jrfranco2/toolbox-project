@@ -1,26 +1,17 @@
-import axios from 'axios';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Navbar, Alert } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
 import { FileTable } from './components/FileTable';
+import { fetchFiles } from './store/actions/fileActions';
 
 function App() {
-  const [files, setFiles] = useState([]);
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
+  const fileData = useSelector((state) => state.fileData);
+  const { files, error, loading } = fileData;
 
   useEffect(() => {
-    // URL de tu API
-    const API_URL = 'http://localhost:3002/files/data';
-
-    axios
-      .get(API_URL)
-      .then((response) => {
-        setFiles(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-        setError(error.message);
-      });
-  }, []);
+    dispatch(fetchFiles());
+  }, [dispatch]);
 
   return (
     <div className="App">
@@ -30,6 +21,7 @@ function App() {
         </Container>
       </Navbar>
       <Container className="mt-5">
+        {loading && <Alert variant="info">Loading...</Alert>}
         {error && <Alert variant="danger">{`Error: ${error}`}</Alert>}
         <FileTable files={files} />
       </Container>
