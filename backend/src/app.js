@@ -40,7 +40,7 @@ app.get('/files/data', cors(corsOptions), async (req, res) => {
           hex: columns[3],
         }));
 
-      return res.json({ file: fileName, lines });
+      return res.json([{ file: fileName, lines }]);
     } catch (error) {
       const statusCode = error.response ? error.response.status : 500;
 
