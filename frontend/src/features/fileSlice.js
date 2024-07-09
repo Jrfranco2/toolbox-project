@@ -11,7 +11,6 @@ export const fetchFiles = createAsyncThunk(
       const response = await axios.get(url);
       return response.data;
     } catch (error) {
-      // Extrae el mensaje de error específico de la respuesta de la API
       let errorMessage = error.response?.data?.message || error.message;
       return rejectWithValue(errorMessage);
     }
