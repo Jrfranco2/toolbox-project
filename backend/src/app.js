@@ -1,4 +1,5 @@
 import express, { json } from 'express';
+import cors from 'cors';
 import axios from 'axios';
 import { API_URL, API_KEY } from './utils/constants.js';
 
@@ -7,11 +8,15 @@ const PORT = process.env.PORT || 3002;
 
 app.use(json());
 
-app.get('/', (_, res) => {
+const corsOptions = {
+  origin: 'http://localhost:3000',
+};
+
+app.get('/', cors(corsOptions), (_, res) => {
   res.send('Api Working');
 });
 
-app.get('/files/data', async (req, res) => {
+app.get('/files/data', cors(corsOptions), async (req, res) => {
   const { fileName } = req.query;
 
   if (fileName) {
@@ -35,7 +40,7 @@ app.get('/files/data', async (req, res) => {
           hex: columns[3],
         }));
 
-      return res.json({ file: fileName, lines });
+      return res.json([{ file: fileName, lines }]);
     } catch (error) {
       const statusCode = error.response ? error.response.status : 500;
 
@@ -97,7 +102,7 @@ app.get('/files/data', async (req, res) => {
   }
 });
 
-app.get('/files/list', async (req, res) => {
+app.get('/files/list', cors(corsOptions), async (req, res) => {
   try {
     const filesResponse = await axios.get(`${API_URL}/files`, {
       headers: { Authorization: API_KEY },

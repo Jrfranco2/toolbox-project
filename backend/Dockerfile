@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
 
@@ -12,5 +12,6 @@ EXPOSE 3002
 
 ENV NODE_ENV=production
 
-# Comando para ejecutar la aplicación
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD wget --quiet --tries=1 --spider http://localhost:3002/ || exit 1
+
 CMD ["npm", "run", "start"]
