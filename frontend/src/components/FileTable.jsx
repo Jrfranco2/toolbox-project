@@ -2,6 +2,7 @@ import React from 'react';
 import Table from 'react-bootstrap/Table';
 
 export const FileTable = ({ files }) => {
+  console.log(files);
   return (
     <Table striped bordered hover>
       <thead>
@@ -13,14 +14,16 @@ export const FileTable = ({ files }) => {
         </tr>
       </thead>
       <tbody>
-        {files.map((file, index) => (
-          <tr key={index}>
-            <td>{file.file}</td>
-            <td>{file.text}</td>
-            <td>{file.number}</td>
-            <td>{file.hex}</td>
-          </tr>
-        ))}
+        {files.map((file) =>
+          file.lines.map((line, index) => (
+            <tr key={`${file.file}-${index}`}>
+              <td>{file.file}</td>
+              <td>{line.text}</td>
+              <td>{line.number}</td>
+              <td>{line.hex}</td>
+            </tr>
+          ))
+        )}
       </tbody>
     </Table>
   );
