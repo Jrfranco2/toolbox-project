@@ -2,7 +2,6 @@ import React from 'react';
 import Table from 'react-bootstrap/Table';
 
 export const FileTable = ({ files }) => {
-  console.log(files);
   return (
     <Table striped bordered hover>
       <thead>

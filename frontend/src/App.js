@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Navbar, Alert, Form, Button } from 'react-bootstrap';
+import { Container, Navbar, Alert } from 'react-bootstrap';
 import { FileTable } from './components/FileTable';
 import { fetchFiles } from './features/fileSlice';
 import { SearchBar } from './components/SearchBar';
